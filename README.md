@@ -16,6 +16,15 @@ Permite realizar operações de CRUD e consultas filtradas por modelo ou marca.
 
 ---
 ## Ao executar o projeto, acesse a documentação atravez desse link http://localhost:8080/swagger-ui/index.html
+  **EXTRA:**
+Você também pode ver a imagem da aplicação disponível no Docker Hub:
+```bash
+    docker pull azevd0/imobiliariapp:1.0
+ ```
+Dê run na aplicação:
+```bash
+docker run -p 8081:8080 azevd0/cellphoneapi:1.0
+```
 ## 🚀 Endpoints Disponíveis
 
 ### 🔹 **Celulares**
