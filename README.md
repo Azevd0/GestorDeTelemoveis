@@ -19,7 +19,7 @@ Permite realizar operações de CRUD e consultas filtradas por modelo ou marca.
   **EXTRA:**
 Você também pode ver a imagem da aplicação disponível no Docker Hub:
 ```bash
-    docker pull azevd0/imobiliariapp:1.0
+    docker pull azevd0/cellphoneapi:1.0
  ```
 Dê run na aplicação:
 ```bash
