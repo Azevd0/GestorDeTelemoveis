@@ -23,7 +23,7 @@ Você também pode ver a imagem da aplicação disponível no Docker Hub:
  ```
 Dê run na aplicação:
 ```bash
-docker run -p 8081:8080 azevd0/cellphoneapi:1.0
+docker run -p 8080:8080 azevd0/cellphoneapi:1.0
 ```
 ## 🚀 Endpoints Disponíveis
 
