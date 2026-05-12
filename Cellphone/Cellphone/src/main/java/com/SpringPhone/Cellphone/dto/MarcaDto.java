@@ -1,6 +1,7 @@
 package com.SpringPhone.Cellphone.dto;
 
 import com.SpringPhone.Cellphone.model.Celular;
+import com.SpringPhone.Cellphone.model.Marca;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotNull;
@@ -17,10 +18,10 @@ public class MarcaDto {
     public MarcaDto(){
     }
 
-    public MarcaDto(Long id, String nome, List<Celular> celulares) {
-        this.id = id;
-        this.nome = nome;
-        this.celulares = celulares;
+    public MarcaDto(Marca marca) {
+        this.id = marca.getId();
+        this.nome = marca.getNome();
+        this.celulares = marca.getCelulares();
     }
 
     public Long getId() {

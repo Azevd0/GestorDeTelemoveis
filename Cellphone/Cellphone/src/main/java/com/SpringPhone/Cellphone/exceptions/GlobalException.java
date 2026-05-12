@@ -3,6 +3,7 @@ package com.SpringPhone.Cellphone.exceptions;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -22,6 +23,14 @@ public class GlobalException {
                 request.getRequestURI());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(se);
     }
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<StandardError> objectNotFoundException(HttpMessageNotReadableException ex, HttpServletRequest request){
+        StandardError se = new StandardError(LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Mensagem não legível. Revise a requisição",
+                request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(se);
+    }
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<StandardError> illegalArgumentException(IllegalArgumentException ex, HttpServletRequest request){
         StandardError se = new StandardError(LocalDateTime.now(),
@@ -30,7 +39,6 @@ public class GlobalException {
                 request.getRequestURI());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(se);
     }
-
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<StandardError> dataIntegrityViolationException(DataIntegrityViolationException ex, HttpServletRequest request){
         StandardError se = new StandardError(LocalDateTime.now(),

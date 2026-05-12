@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
+@Table(name = "marca")
 @Entity
 public class Marca {
     @Id
@@ -23,8 +23,7 @@ public class Marca {
     public Marca() {
     }
 
-    public Marca(Long id, String nome) {
-        this.id = id;
+    public Marca(String nome) {
         this.nome = nome;
     }
 
@@ -56,20 +55,11 @@ public class Marca {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Marca marca = (Marca) o;
-        return Objects.equals(id, marca.id) && Objects.equals(nome, marca.nome) && Objects.equals(celulares, marca.celulares);
+        return Objects.equals(id, marca.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, nome, celulares);
-    }
-
-    @Override
-    public String toString() {
-        return "Marca{" +
-                "id=" + id +
-                ", nome='" + nome + '\'' +
-                ", celulares=" + celulares +
-                '}';
+        return Objects.hashCode(id);
     }
 }

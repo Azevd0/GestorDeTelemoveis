@@ -1,62 +1,67 @@
 package com.SpringPhone.Cellphone.controller;
 
 import com.SpringPhone.Cellphone.dto.CelularDto;
-import com.SpringPhone.Cellphone.model.Celular;
+import com.SpringPhone.Cellphone.enums.PeriodoDeVendas;
+import com.SpringPhone.Cellphone.model.purchase.CompraRequest;
+import com.SpringPhone.Cellphone.model.purchase.Venda;
+import com.SpringPhone.Cellphone.model.request.CelularRegisterRequest;
 import com.SpringPhone.Cellphone.service.CelularService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/celulares")
 public class CelularController {
 
-    @Autowired
-    private CelularService celularService;
-    //buscar pelo id do celular
+    private final CelularService celularService;
+
+    public CelularController(CelularService celularService) {
+        this.celularService = celularService;
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<CelularDto> findById(@PathVariable Long id){
-        Celular celular = celularService.findById(id);
-        return ResponseEntity.ok().body(new CelularDto(celular));
+    public ResponseEntity<CelularDto> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(celularService.findById(id));
     }
-    //buscar pelo id da categoria
+
     @GetMapping
-    public ResponseEntity<List<CelularDto>> findByMarcaId(@RequestParam(value = "marca", defaultValue = "0")Long id){
-        List<Celular> celular = celularService.findAllByMarca(id);
-        return ResponseEntity.ok().body(celular.stream().map(x -> new CelularDto(x)).collect(Collectors.toList()));
-        //exemplo de requisição: /celulares?marca=1
+    public ResponseEntity<List<CelularDto>> listByMarca(@RequestParam(value = "marca") Long idMark) {
+        return ResponseEntity.ok(celularService.findAllByMarca(idMark));
     }
-    //buscar pelo nome do modelo
-    @GetMapping("/modelo/{modelo}")
-    public ResponseEntity<CelularDto> findByModelo(@PathVariable String modelo){
-        Celular celular = celularService.findByModelo(modelo);
-        return ResponseEntity.ok().body(new CelularDto(celular));
+    @GetMapping("/vendas")
+    public ResponseEntity<List<Venda>> listarHistorico(
+            @RequestParam(value = "periodo", defaultValue = "HOJE") PeriodoDeVendas periodo) {
+
+        List<Venda> historico = celularService.getHistorico(periodo);
+        return ResponseEntity.ok(historico);
     }
-    //buscar pelo nome da marca
-    @GetMapping("/marca/{marca}")
-    public ResponseEntity<List<CelularDto>> findAllByMarca(@PathVariable String marca){
-        List<Celular> celularList = celularService.findByMarcaNome(marca);
-        List<CelularDto> celularDtoList = celularList.stream().map(CelularDto::new).collect(Collectors.toList());
-        return ResponseEntity.ok().body(celularDtoList);
-    }
+
     @PostMapping
-    public ResponseEntity<CelularDto> criarCelular(@RequestParam(value = "marca", defaultValue = "0") Long id_mark,@Valid @RequestBody CelularDto celularDto){
-        Celular celular = celularService.save(id_mark, celularDto);
-        return ResponseEntity.ok().body(new CelularDto(celular));
-        //localhost:8080/celulares?marca=1
+    public ResponseEntity<CelularDto> registrarCelular(@Valid @RequestBody CelularRegisterRequest dto) {
+        CelularDto createdDto = celularService.registrarCelular(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdDto);
     }
+
+    @PostMapping("/comprar")
+    public ResponseEntity<Venda> comprar(@RequestBody CompraRequest request) {
+        Venda comprovante = celularService.comprar(request);
+        return ResponseEntity.ok(comprovante);
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<CelularDto> celularUpdate(@RequestParam(value = "marca", defaultValue = "0") Long id_mark, @PathVariable Long id, @Valid @RequestBody CelularDto celularDTO ){
-        Celular celular = celularService.update(id_mark,id, celularDTO);
-        return ResponseEntity.ok().body(new CelularDto(celular));
-        //localhost:8080/celulares/1?marca=2
+    public ResponseEntity<CelularDto> update(
+            @RequestParam(value = "marca") Long idMark,
+            @PathVariable Long id,
+            @Valid @RequestBody CelularDto dto) {
+        return ResponseEntity.ok(celularService.update(idMark, id, dto));
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCelular(@PathVariable Long id){
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         celularService.delete(id);
         return ResponseEntity.noContent().build();
     }

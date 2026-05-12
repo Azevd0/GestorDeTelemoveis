@@ -10,7 +10,6 @@ import java.util.Optional;
 public interface MarcaRepository extends JpaRepository<Marca,Long> {
 
     Optional<Marca> findByNomeContainingIgnoreCase(String nome);
-    Optional<Marca> findByNomeIgnoreCase(String nome);
-
+    boolean existsByNomeIgnoreCase(String nome);
 
 }

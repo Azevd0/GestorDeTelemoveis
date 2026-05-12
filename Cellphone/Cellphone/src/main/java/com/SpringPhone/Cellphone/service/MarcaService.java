@@ -1,62 +1,90 @@
 package com.SpringPhone.Cellphone.service;
 
+import com.SpringPhone.Cellphone.dto.MarcaDto;
 import com.SpringPhone.Cellphone.exceptions.ObjectNotFoundException;
 import com.SpringPhone.Cellphone.model.Marca;
+import com.SpringPhone.Cellphone.model.request.MarcaRegisterRequest;
 import com.SpringPhone.Cellphone.repository.MarcaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class MarcaService {
-    @Autowired
-    private MarcaRepository marcaRepository;
 
-    public Marca findById(Long id){
-        Optional<Marca> marca = marcaRepository.findById(id);
-        if(marca.isPresent()){
-            return marca.get();
+    private final MarcaRepository marcaRepository;
+    private final ModelMapper modelMapper;
+
+    public MarcaService(MarcaRepository marcaRepository, ModelMapper modelMapper) {
+        this.marcaRepository = marcaRepository;
+        this.modelMapper = modelMapper;
+    }
+
+    @Transactional(readOnly = true)
+    public List<MarcaDto> findAll() {
+        return marcaRepository.findAll()
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public MarcaDto findById(Long id) {
+        Marca marca = marcaRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Marca não cadastrada com Id " + id));
+        return convertToDto(marca);
+    }
+
+    @Transactional(readOnly = true)
+    public MarcaDto findByNome(String nome) {
+        Marca marca = marcaRepository.findByNomeContainingIgnoreCase(nome)
+                .orElseThrow(() -> new ObjectNotFoundException("Marca de nome " + nome + " não encontrada"));
+        return convertToDto(marca);
+    }
+
+    @Transactional
+    public MarcaDto criarMarca(MarcaRegisterRequest request) {
+        validarNomeUnico(request.getNome());
+        Marca marca = new Marca();
+        marca.setNome(request.getNome());
+        return modelMapper.map(marcaRepository.save(marca), MarcaDto.class);
+    }
+
+    @Transactional
+    public MarcaDto update(Long id, MarcaRegisterRequest dto) {
+        MarcaDto marcaExistente = findById(id);
+
+        if (!marcaExistente.getNome().equalsIgnoreCase(dto.getNome())) {
+            validarNomeUnico(dto.getNome());
         }
-        throw new ObjectNotFoundException("Marca não cadastrada com Id "+ id);
+        Marca marcaParaAtualizar = modelMapper.map(dto, Marca.class);
+        marcaParaAtualizar.setId(id);
+
+        return convertToDto(marcaRepository.save(marcaParaAtualizar));
     }
-    public Marca findByNome(String nome){
-        Optional<Marca> marca = marcaRepository.findByNomeContainingIgnoreCase(nome);
-        if(marca.isPresent()){
-            return marca.get();
-        }
-        throw new ObjectNotFoundException("Marca de nome " + nome + " não encontrada");
-    }
-    public List<Marca> findAll(){
-        List<Marca> list = marcaRepository.findAll();
-        return list;
-    }
-    public Marca save(Marca marca){
-        buscarPorNome(marca);
-        Marca mark = marcaRepository.save(marca);
-        return mark;
-    }
-    public Marca update(Marca marca){
-        buscarPorNome(marca);
-        findById(marca.getId());
-        Marca mark = marcaRepository.save(marca);
-        return mark;
-    }
-    public void delete(Long id){
-        Marca marca = findById(id);
-        if(!marca.getCelulares().isEmpty()){
+
+    @Transactional
+    public void delete(Long id) {
+        Marca marca = marcaRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Id não encontrado"));
+
+        if (marca.getCelulares() != null && !marca.getCelulares().isEmpty()) {
             throw new DataIntegrityViolationException("Erro! Marca não pode ser deletada, pois ainda contém itens associados");
         }
         marcaRepository.deleteById(id);
     }
-    public void buscarPorNome(Marca marca){
-        Optional<Marca> mark = marcaRepository.findByNomeIgnoreCase(marca.getNome());
-        if(mark.isPresent()){
-            if(mark.get().getId() != marca.getId()){
-                throw new IllegalArgumentException("Marca de nome "+ marca.getNome() + " já existe.");
-            }
+
+    private void validarNomeUnico(String nome) {
+        if (marcaRepository.existsByNomeIgnoreCase(nome)) {
+            throw new IllegalArgumentException("Esta marca já existe");
         }
+    }
+
+    private MarcaDto convertToDto(Marca marca) {
+        return modelMapper.map(marca, MarcaDto.class);
     }
 }

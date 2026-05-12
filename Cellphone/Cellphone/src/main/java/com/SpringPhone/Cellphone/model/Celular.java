@@ -3,8 +3,9 @@ package com.SpringPhone.Cellphone.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Objects;
-
+@Table(name = "celular")
 @Entity
 public class Celular {
     @Id
@@ -13,22 +14,24 @@ public class Celular {
 
     @Column(unique = true)
     private String modelo;
-
+    private BigDecimal preco;
     private Integer ano;
 
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "marca_id")
     private Marca marca;
+    private Integer qtd;
 
     public Celular() {
     }
 
-    public Celular(Long id, String modelo, Integer ano, Marca marca) {
-        this.id = id;
+    public Celular(String modelo,BigDecimal preco, Integer ano, Marca marca, Integer qtd) {
         this.modelo = modelo;
+        this.preco = preco;
         this.ano = ano;
         this.marca = marca;
+        this.qtd = qtd;
     }
 
     public Long getId() {
@@ -47,6 +50,14 @@ public class Celular {
         this.modelo = modelo;
     }
 
+    public BigDecimal getPreco() {
+        return preco;
+    }
+
+    public void setPreco(BigDecimal preco) {
+        this.preco = preco;
+    }
+
     public Integer getAno() {
         return ano;
     }
@@ -63,25 +74,23 @@ public class Celular {
         this.marca = marca;
     }
 
+    public Integer getQtd() {
+        return qtd;
+    }
+
+    public void setQtd(Integer qtd) {
+        this.qtd = qtd;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Celular celular = (Celular) o;
-        return Objects.equals(id, celular.id) && Objects.equals(modelo, celular.modelo) && Objects.equals(ano, celular.ano) && Objects.equals(marca, celular.marca);
+        return Objects.equals(id, celular.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, modelo, ano, marca);
-    }
-
-    @Override
-    public String toString() {
-        return "Celular{" +
-                "id=" + id +
-                ", modelo='" + modelo + '\'' +
-                ", ano=" + ano +
-                ", marca=" + marca +
-                '}';
+        return Objects.hashCode(id);
     }
 }
