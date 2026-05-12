@@ -122,8 +122,6 @@ public class CelularService {
     @Transactional(readOnly = true)
     public List<Venda> getHistorico(PeriodoDeVendas periodo) {
         LocalDateTime dataLimite;
-
-        // Sintaxe compatível com Java 11
         switch (periodo) {
             case HOJE: dataLimite = LocalDateTime.now().withHour(0).withMinute(0);
                 break;
