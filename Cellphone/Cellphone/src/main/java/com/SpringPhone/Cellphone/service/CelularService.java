@@ -75,7 +75,7 @@ public class CelularService {
     @Transactional
     public CelularDto update(Long idMark, Long idCll, CelularDto dto) {
         Celular cellExistente = celularRepository.findById(idCll)
-                .orElseThrow(() -> new ObjectNotFoundException("Celular inexistente"));
+                .orElseThrow(() -> new ObjectNotFoundException("Celular não encontrado"));
 
         Marca marca = marcaRepository.findById(idMark)
                 .orElseThrow(() -> new ObjectNotFoundException("Marca não encontrada"));
